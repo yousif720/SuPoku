@@ -162,10 +162,6 @@ main { padding: 26px 16px 56px; }
   gap: 5px;
 }
 .corner .ball { width: 26px; height: 26px; }
-.corner small {
-  font-size: 10px; font-weight: 800; color: var(--muted);
-  letter-spacing: .02em;
-}
 
 /* play squares */
 .cell {
@@ -556,7 +552,6 @@ main {
   .rarity { font-size: 8px; padding: 1px 3px; top: 3px; left: 3px; }
   .cat-icon { width: 25px; height: 25px; }
   .cat-icon-solo { width: 38px; height: 38px; }
-  .corner small { font-size: 9px; }
 }
 @media (max-width: 400px) {
   .topbar { padding-inline: 10px; gap: 6px; }
