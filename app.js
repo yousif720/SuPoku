@@ -332,7 +332,6 @@ function render() {
 
   const corner = document.createElement('div');
   corner.className = 'corner';
-  corner.innerHTML = '<span class="ball"></span>';
   board.appendChild(corner);
 
   grid.cols.forEach(c => board.appendChild(catCell(c)));
