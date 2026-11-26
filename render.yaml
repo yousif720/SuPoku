@@ -2,20 +2,16 @@ services:
   - type: web
     name: supoku-api
     runtime: python
-    plan: starter
+    # Free plan: no persistent disk, so accounts, scores and pick tallies in
+    # data/ are reset whenever the service redeploys or restarts. Switch to a
+    # paid plan and add a disk (mounted at /var/data, with SUPOKU_DB and
+    # SUPOKU_PICKS pointing into it) to keep them.
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 60
     healthCheckPath: /api/health
-    disk:
-      name: supoku-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.2
-      - key: SUPOKU_DB
-        value: /var/data/social.sqlite3
-      - key: SUPOKU_PICKS
-        value: /var/data/picks.json
       - key: SUPOKU_ALLOWED_ORIGINS
-        sync: false
+        value: https://yousif720.github.io
