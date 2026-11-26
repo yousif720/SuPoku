@@ -115,7 +115,7 @@ def build():
 <p>Questions about this site or its content can be sent using the <a href="contact.html">contact page</a>.</p>''')
     }
     def metadata(path):
-        result = ''
+        result = '<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">' + chr(10)
         if url:
             result += f'<link rel="canonical" href="{escape(url, quote=True)}/{"" if path == "index.html" else path}">\n'
         if publisher:

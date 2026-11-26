@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<style>
+.top{fill:#ba6c57}.band{fill:#45433d}.bot{fill:#f6f0df}.line{stroke:#45433d}.dot{fill:#fff}
+@media (prefers-color-scheme:dark){.top{fill:#ae705c}.band{fill:#c6beab}.bot{fill:#42443b}.line{stroke:#e5e0d3}.dot{fill:#393b34}}
+</style>
+<defs><clipPath id="c"><circle cx="32" cy="32" r="28"/></clipPath></defs>
+<g transform="rotate(-14 32 32)">
+<g clip-path="url(#c)"><rect class="top" x="0" y="0" width="64" height="30"/><rect class="band" x="0" y="29" width="64" height="5"/><rect class="bot" x="0" y="34" width="64" height="30"/></g>
+<circle class="line" cx="32" cy="32" r="28" fill="none" stroke-width="5.5"/>
+<circle class="dot line" cx="32" cy="32" r="7" stroke-width="5"/>
+</g>
+</svg>
