@@ -1013,7 +1013,7 @@ input, button, select, textarea, code { font-family: inherit; }
 .done-next { margin: 12px 0 0; }
 .next-daily { margin-top: 2px; }
 
-.sheet-done { overflow-x: hidden; }
+
 .done-answers { text-align: left; }
 .answers-back { font-size: 12px; padding: 6px 12px; margin-bottom: 10px; }
 .answers-title { font-size: 17px !important; margin: 0 0 2px !important; text-align: center; }
@@ -1030,7 +1030,7 @@ input, button, select, textarea, code { font-family: inherit; }
   border: 1px solid var(--line); color: var(--ink); font-variant-numeric: tabular-nums;
 }
 
-.sheet-archive { max-width: 400px; overflow-x: hidden; }
+.sheet-archive { max-width: 400px; }
 .sheet-archive h2 { margin: 4px 0 6px; font-size: 21px; }
 .archive-sub { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
 .archive-form { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -1060,3 +1060,49 @@ input, button, select, textarea, code { font-family: inherit; }
 @media (max-width: 560px) {
   .topbar-actions { flex-wrap: wrap; justify-content: flex-end; }
 }
+
+/* ------------------------------------------------ nine-slice paper frames ---
+ * The squiggly outline and hatched shadow used to be masks stretched to each
+ * panel's full size, so on a big dialog the wobble sat 30-50px inside the edge
+ * and crossed the text. As nine-slice border images, the hand-drawn corners
+ * keep their size and the wobbly edges repeat rather than stretch, so the lines
+ * stay within a fixed --frame distance of the edge at any size and content
+ * padding always clears them. */
+.panel-card, .settings-pop, .sheet, .document-page article {
+  --frame: 22px;
+  --frame-img: url("assets/frames/frame-a-light.svg");
+  --shadow-img: url("assets/frames/shadow-a-light.svg");
+}
+.panel-card, .settings-pop { --frame: 13px; }
+.undo-card { --frame-img: url("assets/frames/frame-b-light.svg"); }
+.sheet { --shadow-img: url("assets/frames/shadow-b-light.svg"); }
+[data-theme="dark"] :is(.panel-card, .settings-pop, .sheet, .document-page article) {
+  --frame-img: url("assets/frames/frame-a-dark.svg");
+  --shadow-img: url("assets/frames/shadow-a-dark.svg");
+}
+[data-theme="dark"] .undo-card { --frame-img: url("assets/frames/frame-b-dark.svg"); }
+[data-theme="dark"] .sheet { --shadow-img: url("assets/frames/shadow-b-dark.svg"); }
+
+.panel-card::after, .settings-pop::after, .sheet::after, .document-page article::after {
+  mask: none; background: none; opacity: .5;
+  border: var(--frame) solid transparent;
+  border-image: var(--frame-img) 24 / var(--frame) round;
+}
+.panel-card:not(.guess-card)::before, .settings-pop::before, .sheet::before, .document-page article::before {
+  mask: none; background: none;
+  border: var(--frame) solid transparent;
+  border-image: var(--shadow-img) 24 / var(--frame) round;
+}
+
+/* Keep text clear of the frame: at least the frame band plus a little air. */
+.sheet { padding: calc(var(--frame) + 8px); }
+.sheet-close { top: 10px; right: 12px; }
+.document-page article { padding: max(calc(var(--frame) + 10px), clamp(18px, 4vw, 36px)); }
+.settings-pop { padding: 16px 18px; }
+.panel-card:not(.guess-card) { padding-inline: 17px; }
+@media (max-width: 400px) {
+  .sheet { padding: calc(var(--frame) + 6px) calc(var(--frame) + 2px); }
+}
+/* Sheets scroll when tall; a shadow hanging past the edge would add a stray
+   scrollbar and scroll away with the content, so keep it inside the edge. */
+.sheet::before { inset: 1px 0 0 2px; }
