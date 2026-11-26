@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to play · SuPoku</title>
+<meta name="description" content="Rules, retries, undo, clue interpretation and rarity in SuPoku.">
+<script src="theme.js"></script><link rel="stylesheet" href="style.css"></head>
+<body class="info-page"><header class="topbar"><a class="brand" href="index.html"><span class="ball" aria-hidden="true"></span> SuPoku</a><a class="pill" href="index.html">Back to puzzle</a></header>
+<main class="document-page"><article><h1>How to play</h1>
+<p>Fill the nine squares with Pokémon that match both the row clue and the column clue. You have nine guesses, and you cannot repeat a Pokémon already used on your grid.</p>
+<h2>Your first square</h2>
+<ol><li>Read a row clue on the left and a column clue above the board.</li><li>Tap their intersecting square. The dialog repeats the clues and shows the number of possible answers.</li><li>Search for a Pokémon by name. Check the exact form: a regional form can have different properties from the original.</li><li>Select an answer. A correct match fills the square and uses one guess.</li></ol>
+<p>For example, a square asking for a Water-type Pokémon from Kanto can accept Squirtle. If you use Squirtle there, you must choose something else for every remaining square.</p>
+<h2>Retries and your one undo</h2>
+<p>Your first incorrect answer in each square is a free retry. It does not spend a guess. Further incorrect answers in that square do spend guesses. A small dot marks a square whose free retry has been used.</p>
+<p>You get one undo for the whole grid. Tap a filled square to undo it, or open a square you have tried and choose “Undo this square.” Confirming clears the square and refunds the guesses spent there. It also restores that square’s free retry. Giving up forfeits the remaining undo.</p>
+<h2>Reading the clues</h2>
+<ul><li><strong>Region:</strong> regional forms belong to their own region. Alolan Meowth counts as Alola. Other entries use the region where their species debuted.</li><li><strong>Type matchups:</strong> weaknesses and resistances use the type chart. Immunity clues also consider supported immunity-granting abilities, including hidden abilities the Pokémon can have.</li><li><strong>Moves:</strong> “Can learn” uses the bundled learnset data. It is not a promise that a move is available in every individual game or competitive format.</li><li><strong>Evolution, stats and forms:</strong> clues refer to the selected entry in the dataset. Search for the specific form when the distinction matters.</li></ul>
+<h2>What the colors mean</h2>
+<p>When the shared answer service is available, correct answers receive a rarity color based on how often other players chose the same answer for that category pair. Legendary is below 1%, Epic below 5%, Rare below 10%, Uncommon below 25%, and Common is 25% or more. These are answer-popularity labels, not the Pokémon’s in-game legendary status.</p>
+<p>Your answer is compared with the tally before your own pick is added. An answer with no previous picks can therefore receive the rarest label; a small sample is not a reliable measure of difficulty. The puzzle remains playable if rarity data is unavailable.</p>
+<h2>Daily, Random and saving</h2>
+<p>Daily builds a puzzle from the date and a new one arrives at midnight UTC; the countdown under your guesses shows when. Archive lets you replay any past daily grid for practice, and Random creates a fresh challenge. Guest, archive and random progress is saved in this browser, so you can reload or come back later and pick up where you left off. Signed-in daily games are saved to your account instead. When a grid ends, tap any square of the summary to see every valid answer and how often each was picked.</p>
+<h2>A useful strategy</h2>
+<p>Start with the most restrictive pair of clues. Then look for Pokémon that fit only one of your remaining squares, keeping versatile answers available until you need them. If an answer is rejected, check its form and the clue definitions before spending another guess.</p>
+<p>If you find a data mismatch, use the <a href="contact.html">contact page</a> and include both clues and the exact Pokémon name.</p></article></main>
+<footer class="site-footer"><nav aria-label="Site information"><a href="index.html">Play</a><a href="how-to-play.html">How to play</a><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a><a href="terms.html">Terms & credits</a></nav></footer><div class="theme-footer"><button class="ghost" type="button" data-theme-toggle aria-pressed="false">Dark theme</button></div></body></html>

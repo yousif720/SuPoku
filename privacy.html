@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy &amp; storage · SuPoku</title>
+<meta name="description" content="How SuPoku uses browser storage, answer tallies and external image hosting.">
+<meta name="robots" content="noindex"><script src="theme.js"></script><link rel="stylesheet" href="style.css"></head>
+<body class="info-page"><header class="topbar"><a class="brand" href="index.html"><span class="ball" aria-hidden="true"></span> SuPoku</a><a class="pill" href="index.html">Back to puzzle</a></header>
+<main class="document-page"><article><h1>Privacy &amp; storage</h1><p class="draft-note"><strong>Draft for site-owner review.</strong> Operator, contact and hosting details must be completed before publication.</p>
+<p>Last updated: 7 September 2026.</p>
+<h2>Who operates this site</h2><p>Site operator details are pending. Privacy questions: <a href="mailto:ybgamer44@gmail.com">ybgamer44@gmail.com</a></p>
+<h2>Playing without an account</h2>
+<p>Guest play does not require an account. Search text is filtered in your browser against the downloaded Pokédex; it is not sent to a search service.</p>
+<h2>Optional accounts, friends and daily scores</h2>
+<p>If you register, we store your username, a salted password hash, account creation time, friends list and daily game history. Passwords are not stored in plain text. Your username and score statistics are public in leaderboards and friends lists. Your own friends list and detailed history require your login. Adding a friend is one-way and does not send them a message.</p>
+<p>Signed-in daily guesses, retries, undo and final scores are saved on the server to resume play and calculate scores and streaks. Account records remain until you delete your account in the Account panel. Deletion also removes its sessions, friends relationships and leaderboard results. Hosting backups, if any, follow the operator’s retention policy, which is pending below.</p>
+<p>A necessary HttpOnly session cookie named <code>supoku_session</code> keeps you signed in for up to 30 days. Signing out revokes that session. The server briefly tracks IP addresses in memory to limit repeated login attempts (15 minutes). No email address is collected for accounts; email password recovery is not configured.</p>
+<p>When the frontend is hosted on GitHub Pages and the account service on Render, login instead uses a session token in this browser’s local storage, under <code>supoku:session:</code> followed by the API address. It keeps you signed in across tabs and visits and expires on the server after 30 days; signing out removes it and revokes the session. This avoids relying on third-party cookies. Do not share this token.</p>
+<h2>Browser storage</h2>
+<p>Your chosen light or dark theme is stored under <code>supoku:theme</code> until you clear this site’s browser storage or choose another theme. Before you choose, the site follows your device’s appearance preference.</p>
+<p>The game stores your pixel-sprite preference in local storage under <code>supoku:pixelArt</code>. It can also read preferences left by earlier versions under <code>supokeku:pixelArt</code> and <code>pokegrid:pixelArt</code>. This preference remains until you clear the site’s browser storage or change it. Guest, archive and random puzzle progress is stored in local storage under keys starting <code>supoku:game:</code>, plus <code>supoku:current</code> for the grid you last played, so a reload resumes your board. It stays until you clear the site’s browser storage. Signed-in daily progress is saved to your account.</p>
+<h2>Shared answer statistics</h2>
+<p>When you submit a correct answer, the game sends its category pair and Pokémon identifier to this site’s answer service. Undoing a recorded answer sends a corresponding adjustment. The application stores aggregate counts by category pair and answer, rather than an account-based history. These counts support the rarity colors and remain until the operator resets them.</p>
+<h2>Connection information and hosting</h2>
+<p>Loading the site and using its answer service exposes normal connection information, including your IP address, to the hosting infrastructure. The supplied answer server logs API requests with an IP address, request path and time. Hosting providers may keep additional access or security logs.</p>
+<p>Hosting provider, log retention and handling of privacy requests must be confirmed by the operator before this policy is finalized.</p>
+<h2>External images</h2>
+<p>Pokémon images are requested from the PokeAPI sprites repository through GitHub’s raw-content hosting. That service receives connection information when your browser requests an image. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub’s privacy statement</a>. Type icons and the paper texture are served by this site.</p>
+<h2>Advertising</h2>
+<p>This version does not load Google AdSense ad-serving code or analytics. If advertising is enabled, this policy must be updated to describe the deployed services and your available consent controls.</p>
+<p>Google advertising can use cookies, web beacons, IP addresses and other identifiers to deliver, personalize and measure ads. Google and other third-party vendors may use cookies to serve ads based on earlier visits to this or other websites. Google’s advertising cookies can enable Google and its partners to personalize ads based on those visits. Read <a href="https://policies.google.com/technologies/partner-sites">how Google uses information from partner sites</a> and manage personalization in <a href="https://myadcenter.google.com/">My Ad Center</a>. These links describe Google’s services; no ads are enabled by this page.</p>
+<h2>Contact and choices</h2>
+<p>You can clear this site’s local storage using your browser’s site-data controls. For questions about connection records, information you send by email, or applicable data-access and deletion requests, contact: <a href="mailto:ybgamer44@gmail.com">ybgamer44@gmail.com</a></p>
+<p>If you email the operator, your email address and message are made available to the operator and their email provider to handle your inquiry. Do not send passwords, payment information or other sensitive details.</p></article></main>
+<footer class="site-footer"><nav aria-label="Site information"><a href="index.html">Play</a><a href="how-to-play.html">How to play</a><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a><a href="terms.html">Terms & credits</a></nav></footer><div class="theme-footer"><button class="ghost" type="button" data-theme-toggle aria-pressed="false">Dark theme</button></div></body></html>

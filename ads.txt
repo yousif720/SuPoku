@@ -1,0 +1,1 @@
+# No authorized advertising sellers configured. Add your publisher ID to site-config.json and run prepare_site.py.

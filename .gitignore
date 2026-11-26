@@ -1,0 +1,8 @@
+# Regenerable: build_data.py re-downloads these on demand
+csv/
+__pycache__/
+data/*.sqlite3*
+data/picks.json*
+_site/
+.env
+.env.*

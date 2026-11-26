@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuPoku</title>
+<meta name="description" content="Play SuPoku, a daily Pokémon trivia grid. Match row and column clues, find nine Pokémon, and try a fresh random puzzle in a paper-and-pencil style.">
+<script src="theme.js"></script>
+<script src="api-config.js"></script>
+<script src="api-client.js"></script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="social.css">
+<!-- SITE META START -->
+<!-- SITE META END -->
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="ball"></span> SuPoku</div>
+  <div class="topbar-actions">
+    <button id="btn-daily" class="pill is-active">Daily</button>
+    <button id="btn-archive" class="pill">Archive</button>
+    <button id="btn-random" class="pill">Random</button>
+    <button id="btn-community" class="pill">Friends & scores</button>
+
+    <div class="settings">
+      <button id="btn-settings" class="cog" aria-label="Settings" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+          <path fill="currentColor" d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.2a.5.5 0 0 0-.6-.2l-2.4 1a7.4 7.4 0 0 0-1.7-1L14.5 2.6a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4L9.3 5.4a7.4 7.4 0 0 0-1.7 1l-2.4-1a.5.5 0 0 0-.6.2L2.7 8.8a.5.5 0 0 0 .1.6L4.8 11a7.8 7.8 0 0 0 0 2l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.2a.5.5 0 0 0 .6.2l2.4-1a7.4 7.4 0 0 0 1.7 1l.4 2.8a.5.5 0 0 0 .5.4h3.8a.5.5 0 0 0 .5-.4l.4-2.8a7.4 7.4 0 0 0 1.7-1l2.4 1a.5.5 0 0 0 .6-.2l1.9-3.2a.5.5 0 0 0-.1-.6ZM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Z"/>
+        </svg>
+      </button>
+
+      <div class="settings-pop" id="settings-pop" hidden>
+        <div class="set-title">Appearance</div>
+        <label class="switch-row theme-switch">
+          <span>Dark theme</span>
+          <input type="checkbox" id="opt-dark" data-theme-toggle>
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+        <div class="set-title">Images</div>
+        <label class="switch-row">
+          <span>Pixel sprites</span>
+          <input type="checkbox" id="opt-sprites">
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+        <p class="set-note">Off uses the official 2D artwork.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Hand-drawn decorations supplied for this page; they sit behind the game and never capture taps. -->
+<div class="doodle-layer" aria-hidden="true">
+  <img class="doodle doodle-star" src="assets/doodles/01star.png" alt="">
+  <img class="doodle doodle-eye" src="assets/doodles/03eye.png" alt="">
+  <img class="doodle doodle-differential" src="assets/doodles/02differentialequation.png" alt="">
+  <img class="doodle doodle-kinetic" src="assets/doodles/06kineticenergy.png" alt="">
+  <img class="doodle doodle-stick" src="assets/doodles/04stickfigure.png" alt="">
+  <img class="doodle doodle-pythagorean" src="assets/doodles/05pythagoreantheorem.png" alt="">
+</div>
+
+<main id="app" hidden>
+  <div class="board-wrap">
+    <div class="board" id="board"><!-- built by app.js --></div>
+
+    <aside class="scorepanel">
+      <div class="panel-card guess-card">
+        <div class="guess-head">
+          <span class="score-label">Guesses left</span>
+          <span class="score-value" id="guesses">9</span>
+        </div>
+        <div class="pips" id="pips"></div>
+      </div>
+
+      <div class="panel-card undo-card" id="undo-card">
+        <span class="undo-icon" aria-hidden="true">&#8634;</span>
+        <span id="undo-note">One undo</span>
+      </div>
+
+      <button id="btn-giveup" class="ghost wide">Give up</button>
+      <div class="score-sub" id="puzzle-id"></div>
+      <div class="score-sub next-daily" id="next-daily" aria-live="off"></div>
+    </aside>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <p class="hint" id="hint">Tap an empty square to name a Pokémon that satisfies both categories.</p>
+</main>
+
+<div id="loading" class="loading">Loading the Pokédex…</div>
+<noscript><p class="hint">SuPoku needs JavaScript to run the puzzle. You can still read <a href="how-to-play.html">how to play</a> and the site information below.</p></noscript>
+
+<!-- Guess dialog -->
+<div class="overlay" id="overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <button class="sheet-close" id="sheet-close" aria-label="Close">&times;</button>
+    <div class="sheet-crit" id="sheet-title">
+      <div class="crit"><span id="c-row-icon"></span><span class="crit-top" id="c-row-top"></span><span class="crit-main" id="c-row"></span></div>
+      <span class="crit-x">&times;</span>
+      <div class="crit"><span id="c-col-icon"></span><span class="crit-top" id="c-col-top"></span><span class="crit-main" id="c-col"></span></div>
+    </div>
+    <div class="answer-count" id="answer-count"></div>
+    <div class="sheet-miss" id="sheet-miss" hidden></div>
+    <button id="btn-undo-square" class="undo-square" hidden>&#8634; Undo this square</button>
+    <input id="search" type="text" placeholder="Search all 1330 Pokémon…" autocomplete="off" spellcheck="false">
+    <ul id="results" class="results"></ul>
+  </div>
+</div>
+
+<!-- Result summary -->
+<div class="overlay" id="done-overlay" hidden>
+  <div class="sheet sheet-done">
+    <button class="sheet-close" id="done-close" aria-label="Close">&times;</button>
+    <div id="done-main">
+      <h2 id="done-title">Grid complete</h2>
+      <p id="done-sub"></p>
+      <div id="done-grid" class="done-grid"></div>
+      <p class="done-tip">Tap any square to see every answer.</p>
+      <p class="done-score" id="done-score"></p>
+      <p class="done-hint" id="done-hint"></p>
+      <button id="btn-again" class="primary">New random grid</button>
+      <p class="done-next" id="done-next"></p>
+    </div>
+    <div id="done-answers" class="done-answers" hidden>
+      <button id="answers-back" class="ghost answers-back" type="button">&larr; Back to results</button>
+      <h2 id="answers-title" class="answers-title"></h2>
+      <p id="answers-meta" class="answers-meta"></p>
+      <ul id="answers-list" class="results answers-list"></ul>
+      <p id="answers-note" class="answers-note"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Puzzle archive -->
+<div class="overlay" id="archive-overlay" hidden>
+  <div class="sheet sheet-archive" role="dialog" aria-modal="true" aria-labelledby="archive-heading">
+    <button class="sheet-close" id="archive-close" aria-label="Close">&times;</button>
+    <h2 id="archive-heading">Puzzle archive</h2>
+    <p class="archive-sub">Replay any past daily grid for practice. Archive games are saved in this browser and do not count toward the leaderboard.</p>
+    <form id="archive-form" class="archive-form">
+      <label for="archive-date">Pick a date</label>
+      <input type="date" id="archive-date" required>
+      <button class="primary">Play</button>
+    </form>
+    <ul id="archive-list" class="archive-list"></ul>
+  </div>
+</div>
+
+<!-- Undo confirmation -->
+<div class="overlay" id="confirm-overlay" hidden>
+  <div class="sheet sheet-confirm" role="dialog" aria-modal="true">
+    <h2>Undo this square?</h2>
+    <p id="confirm-sub"></p>
+    <div class="confirm-actions">
+      <button id="btn-confirm-no" class="ghost">Keep it</button>
+      <button id="btn-confirm-yes" class="primary">Undo it</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js?v=archive-1"></script>
+<script src="social.js"></script>
+<!-- SITE FOOTER START -->
+<footer class="site-footer"><nav aria-label="Site information"><a href="index.html">Play</a><a href="how-to-play.html">How to play</a><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a><a href="terms.html">Terms & credits</a></nav></footer>
+<!-- SITE FOOTER END -->
+</body>
+</html>
