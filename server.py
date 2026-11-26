@@ -5,6 +5,7 @@ import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlsplit
 from pathlib import Path
+import rarity
 import social
 from api_config import allowed_origin, cors_headers
 
@@ -70,15 +71,28 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
         if self.path.startswith("/api/answers"):
-            # Read-only tally for one square, shown after a game ends. Counts
-            # only, keyed by Pokemon id; no player information is stored.
-            square = parse_qs(urlsplit(self.path).query).get("square", [""])[0][:200]
-            if not square:
-                self._send_json({"error": "square is required"}, 400)
+            # Read-only shares for one square, shown after a game ends: the
+            # survey prior blended with player pick counts (see rarity.py).
+            # Counts only, keyed by Pokemon id; no player information is stored.
+            query = parse_qs(urlsplit(self.path).query)
+            try:
+                row, col = int(query["row"][0]), int(query["col"][0])
+            except (KeyError, ValueError):
+                row = col = None
+            valid = rarity.valid_answers(row, col)
+            if valid is None:
+                self._send_json({"error": "row and col category indices are required"}, 400)
                 return
+            square = rarity.square_key(row, col)
             with LOCK:
                 tally = dict(load().get(square, {}))
-            self._send_json({"picks": tally, "total": sum(tally.values())})
+            counts = {int(k): v for k, v in tally.items() if k.isdigit()}
+            share = rarity.shares(valid, counts)
+            self._send_json({
+                "shares": {str(k): round(v, 3) for k, v in share.items()},
+                "picks": {str(k): counts[k] for k in valid if k in counts},
+                "total": sum(counts.get(k, 0) for k in valid),
+            })
             return
         if self.public_path():
             super().do_GET()
@@ -129,6 +143,14 @@ class Handler(SimpleHTTPRequestHandler):
 
         square = str(req.get("square", ""))[:200]
         pick = str(req.get("pick", ""))[:20]
+        # Current clients name the square by its two category indices, so the
+        # server can work out the valid answers and the survey prior itself.
+        valid = rarity.valid_answers(req.get("row"), req.get("col"))
+        if valid is not None:
+            square = rarity.square_key(req["row"], req["col"])
+            if not pick.isdigit() or int(pick) not in valid:
+                self._send_json({"error": "that Pokemon does not fit this square"}, 400)
+                return
         if not square or not pick:
             self._send_json({"error": "square and pick are required"}, 400)
             return
@@ -152,9 +174,13 @@ class Handler(SimpleHTTPRequestHandler):
             # from the percentage they see, and included for everyone after.
             others = sum(tally.values())
             mine_before = tally.get(pick, 0)
+            reply = {"count": mine_before, "total": others}
+            if valid is not None:
+                counts = {int(k): v for k, v in tally.items() if k.isdigit()}
+                reply["percent"] = round(rarity.shares(valid, counts)[int(pick)], 3)
             tally[pick] = mine_before + 1
             save(data)
-            self._send_json({"count": mine_before, "total": others})
+            self._send_json(reply)
 
 
 if __name__ == "__main__":

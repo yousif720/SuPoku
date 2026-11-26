@@ -60,7 +60,7 @@ const TIERS = [
   { under: Infinity, name: 'Common', cls: 'tier-common' },
 ];
 const tierFor = pct => TIERS.find(t => pct < t.under);
-const fmtPct = v => (v >= 10 ? `${Math.round(v)}%` : `${v.toFixed(1)}%`);
+const fmtPct = v => (v >= 10 ? `${Math.round(v)}%` : v >= 0.1 ? `${v.toFixed(1)}%` : '<0.1%');
 
 // A Pokemon's home region. A regional form belongs to the region it comes from,
 // anything else to the region its species debuted in, so Alolan Meowth counts
@@ -420,17 +420,20 @@ async function tally(body) {
 // The server answers with the counts as they were before this pick, so your own
 // answer never feeds the percentage you are shown. Rarity is decoration: if the
 // API is unreachable (opened as a plain file, say) the game plays on without it.
+// The two category indices let the server work out the square's valid answers
+// and blend its survey prior with players' picks (rarity.py).
+const squareIndices = i => ({
+  row: CATS.indexOf(grid.rows[Math.floor(i / 3)]),
+  col: CATS.indexOf(grid.cols[i % 3]),
+});
+
 async function recordPick(i, p) {
   try {
-    const { count, total } = await tally({ square: squareKey(i), pick: String(p.id) });
+    const { percent } = await tally({ square: squareKey(i), pick: String(p.id), ...squareIndices(i) });
     const st = grid.cells[i];
     if (!st || !st.ok || st.p.id !== p.id) return;   // undone or replaced meanwhile
-    if (total > 0) {
-      st.rarity = (count / total) * 100;
-    } else {
-      st.rarity = 0;          // nobody else has answered this square
-      st.firstPick = true;
-    }
+    if (typeof percent !== 'number') return;
+    st.rarity = percent;
     st.tier = tierFor(st.rarity);
     render();
     if (!$('done-overlay').hidden) renderDone();
@@ -438,7 +441,7 @@ async function recordPick(i, p) {
 }
 
 function unrecordPick(i, p) {
-  tally({ square: squareKey(i), pick: String(p.id), undo: true }).catch(() => {});
+  tally({ square: squareKey(i), pick: String(p.id), undo: true, ...squareIndices(i) }).catch(() => {});
 }
 
 function renderLegend() {
@@ -660,33 +663,35 @@ async function showAnswers(i) {
   $('done-answers').hidden = false;
   $('answers-list').scrollTop = 0;
 
-  const draw = (counts, total) => {
+  // `shares` maps id -> percent; null while loading or when unavailable.
+  const draw = shares => {
+    const s = shares || {};
     const list = opts.slice().sort((a, b) =>
-      (counts[b.id] || 0) - (counts[a.id] || 0) || a.dex - b.dex || a.id - b.id);
+      (s[b.id] || 0) - (s[a.id] || 0) || a.dex - b.dex || a.id - b.id);
     $('answers-list').innerHTML = list.map(p => {
-      const n = counts[p.id] || 0;
-      const pct = total ? (n / total) * 100 : null;
+      const pct = shares ? s[p.id] || 0 : null;
       const tier = pct == null ? '' : ` ${tierFor(pct).cls}`;
-      const share = pct == null ? '' : `<span class="ans-pct${tier}">${n ? fmtPct(pct) : '0%'}</span>`;
+      const share = pct == null ? '' : `<span class="ans-pct${tier}">${fmtPct(pct)}</span>`;
       return `<li class="${p.id === mine ? 'mine' : ''}">${pokeImg(p, null, true)}` +
         `<span class="rname">${escHtml(p.name)}${p.id === mine ? ' <em>your pick</em>' : ''}</span>${share}</li>`;
     }).join('');
   };
-  draw({}, 0);
-  $('answers-note').textContent = 'Loading how often each answer was picked…';
+  draw(null);
+  $('answers-note').textContent = 'Loading how often each answer is picked…';
 
   const ticket = ++answersTicket;
   try {
-    const res = await SupokuAPI.request('/api/answers?square=' + encodeURIComponent(squareKey(i)));
+    const { row, col } = squareIndices(i);
+    const res = await SupokuAPI.request(`/api/answers?row=${row}&col=${col}`);
     if (!res.ok) throw new Error(res.status);
-    const { picks, total } = await res.json();
+    const { shares, total } = await res.json();
     if (ticket !== answersTicket || $('done-answers').hidden) return;
-    const counts = {};
-    for (const [id, n] of Object.entries(picks || {})) counts[+id] = n;
-    draw(counts, total);
+    const byId = {};
+    for (const [id, v] of Object.entries(shares || {})) byId[+id] = v;
+    draw(byId);
     $('answers-note').textContent = total
-      ? `Percentages show how often each answer was picked, across ${total} pick${total === 1 ? '' : 's'}.`
-      : 'Nobody has answered this square yet.';
+      ? `Estimated pick rates: a 2025 fan survey of Pokémon popularity, adjusted by ${total} real pick${total === 1 ? '' : 's'} here.`
+      : 'Estimated pick rates from a 2025 fan survey of Pokémon popularity. Nobody has answered this square yet.';
   } catch (e) {
     if (ticket === answersTicket) $('answers-note').textContent = 'Pick rates are unavailable right now.';
   }

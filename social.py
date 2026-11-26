@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 
 from daily import fresh, action
+import rarity
 from api_config import allowed_origin
 
 DB = os.environ.get('SUPOKU_DB', str(Path(__file__).parent / 'data/social.sqlite3'))
@@ -244,10 +245,14 @@ def handle(h, method):
                         i, pid = req['cell'], req['pokemon']
                         prior = db.execute('SELECT state FROM games WHERE day=? AND user<>?', (day, user['id'])).fetchall()
                         answers = [json.loads(r[0])['cells'][i] for r in prior]
-                        answers = [p for p in answers if p is not None]
+                        counts = {}
+                        for p in answers:
+                            if p is not None:
+                                counts[p] = counts.get(p, 0) + 1
+                        # Other ranked players today, blended with the survey prior.
+                        valid = rarity.valid_answers(game['rows'][i // 3], game['cols'][i % 3])
                         game.setdefault('rarities', [None]*9)[i] = {
-                            'percent': 100 * answers.count(pid) / len(answers) if answers else 0,
-                            'first': pid not in answers}
+                            'percent': rarity.shares(valid, counts).get(pid, 0), 'first': False}
                 filled = sum(p is not None for p in game['cells'])
                 db.execute('INSERT INTO games VALUES(?,?,?,?,?,?) ON CONFLICT(user,day) DO UPDATE SET state=excluded.state,points=excluded.points,filled=excluded.filled,finished=COALESCE(games.finished,excluded.finished)',
                            (user['id'], day, json.dumps(game), game['points'], filled, int(time.time()) if game['over'] else None))
